@@ -1,0 +1,42 @@
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# Build outputs are not part of the Unity source project
+[Bb]uilds/
+[Bb]uild/
+
+# IDE generated files
+.vs/
+.idea/
+.vscode/
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Unity crash and diagnostics artifacts
+sysinfo.txt
+crashlytics-build.properties
+
+# Keep Asset Store tools local
+/Assets/AssetStoreTools*
