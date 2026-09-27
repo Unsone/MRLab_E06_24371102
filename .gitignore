@@ -40,3 +40,6 @@ crashlytics-build.properties
 
 # Keep Asset Store tools local
 /Assets/AssetStoreTools*
+
+# Local Unity licensing diagnostic logs
+/SafeNet Sentinel/
