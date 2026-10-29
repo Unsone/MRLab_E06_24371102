@@ -1,0 +1,33 @@
+2026-10-28 小作业2无托盘版本运行验证
+INTERACTION_CHECK_PASS: Desktop adapters wired
+INTERACTION_CHECK_PASS: Generated beaker replaces primitive
+INTERACTION_CHECK_PASS: Generated beaker replaces primitive
+INTERACTION_CHECK_PASS: Generated beaker replaces primitive
+INTERACTION_CHECK_PASS: Generated beaker replaces primitive
+INTERACTION_CHECK_PASS: Generated flask attached
+INTERACTION_CHECK_PASS: Tray removed from active scene
+INTERACTION_CHECK_PASS: Foam rests on tabletop without tray offset
+INTERACTION_CHECK_PASS: Flask aligned to tabletop
+INTERACTION_CHECK_PASS: Held beaker follows pointer ray
+INTERACTION_CHECK_PASS: Cannot silently replace held cup
+INTERACTION_CHECK_PASS: Reject outside table
+INTERACTION_CHECK_PASS: Reject occupied reaction area
+INTERACTION_CHECK_PASS: Reject occupied beaker footprint
+INTERACTION_CHECK_PASS: Pour commits and keeps cup held
+INTERACTION_CHECK_PASS: Used beaker visibly empty
+INTERACTION_CHECK_PASS: Empty cup cannot add twice
+INTERACTION_CHECK_PASS: Place empty cup on free table
+INTERACTION_CHECK_PASS: Cancel restores latest pickup position
+INTERACTION_CHECK_PASS: Reset interrupts pour safely
+INTERACTION_CHECK_PASS: Reset refills cup
+INTERACTION_CHECK_PASS: Reset refills cup
+INTERACTION_CHECK_PASS: Reset refills cup
+INTERACTION_CHECK_PASS: Reset refills cup
+INTERACTION_CHECK_PASS: Orbit and zoom change actual camera
+INTERACTION_CHECK_PASS: Vessel remains pickable from orbited viewpoint
+INTERACTION_CHECK_PASS: Home restores view
+INTERACTION_CHECK_PASS: Cup retained after reagent 1
+INTERACTION_CHECK_PASS: Cup retained after reagent 0
+INTERACTION_CHECK_PASS: Cup retained after reagent 3
+INTERACTION_CHECK_PASS: Chemistry and foam still run through new flow
+FREE_INTERACTION_RUNTIME_PASSED

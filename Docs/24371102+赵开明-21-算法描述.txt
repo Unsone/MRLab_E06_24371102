@@ -1,0 +1,19 @@
+﻿小作业2 自动三维建模算法描述
+姓名：赵开明；学号：24371102。
+算法：腾讯 Hunyuan3D-2.1，预训练形状生成；不包含自动纹理生成。
+源码提交：82920d643c0dc2f7bfd7255f45f62d386edfe60c
+模型：tencent/Hunyuan3D-2.1/hunyuan3d-dit-v2-1
+权重版本：0b94677654c57bb9a6b6845cd7b704ccf551d327
+权重 SHA-256：6b519fc7242f78e9b5f47ea4d55668fe3d944a2d27332f4ca68d29a6ff603f5e
+运行设备：AMD Radeon 780M；Windows DirectML；torch.float16。
+输入：单物体参考图片；rembg u2netp CPU 去背景；原图与预处理图均随算法输入包提交。
+共同参数：resolution=128，attention_chunk=256，volume_chunk=1024。
+烧杯：steps=20，seed=1234，guidance=5.0；耗时 3855.61 秒。
+锥形瓶：steps=30，seed=42，guidance=3.0；耗时 3245.99 秒。
+原始网格：烧杯 36216 顶点、72464 三角面；锥形瓶 2562 顶点、5120 三角面。
+这些参数及结果来自实际 run.json，不是计划参数；保留原始 OBJ，不用修复结果冒充自动生成结果。
+
+PC 集成：运行工程的 PC 程序，F8 打开 AI 建模面板，启动本地工具并载入生成结果预览。工程根目录 GenerateModel.cmd 可启动同一服务。模型修复后导入正式场景 HunyuanVisual。
+适配代码：SourceAssets/Models/Hunyuan3D/amd_backend.py；Unity 接入：Assets/_Project/Scripts/Utility/HunyuanModelingPanel.cs。
+权重和本地 Python 环境不随包分发；首次重新生成需安装并下载约 7.37 GB 官方形状权重。运行现成 PC 实验无需下载。
+建模清单见 HW02_建模清单与对比.md。四只烧杯是同一几何的场景实例，并非四次独立推理。

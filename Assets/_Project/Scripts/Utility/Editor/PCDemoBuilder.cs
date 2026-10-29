@@ -135,9 +135,9 @@ namespace MRLab.Editor
             experiment.stream = line;
 
             var camera = Camera.main;
-            camera.transform.position = new Vector3(.6f,2.05f,-2.85f);
-            camera.transform.LookAt(new Vector3(0,1.16f,.06f));
-            camera.fieldOfView = 36; camera.nearClipPlane = .03f; camera.farClipPlane = 30;
+            camera.transform.position = new Vector3(.6f,2.5f,-3.6f);
+            camera.transform.LookAt(new Vector3(-.15f,1.38f,.06f));
+            camera.fieldOfView = 42; camera.nearClipPlane = .03f; camera.farClipPlane = 30;
             camera.rect = new Rect(.23f,0,.77f,1); camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = new Color(.055f,.09f,.12f);
             RenderSettings.ambientMode = AmbientMode.Flat; RenderSettings.ambientLight = new Color(.64f,.73f,.8f);
             foreach (var light in UnityEngine.Object.FindObjectsOfType<Light>()) { light.intensity = 1.05f; light.shadows = LightShadows.Soft; light.transform.rotation = Quaternion.Euler(45,-35,0); }
@@ -255,22 +255,91 @@ namespace MRLab.Editor
             BuildCurrentScene();
         }
 
+        // Verification/build entry point that preserves hand-edited scene and materials.
+        public static void VerifyAndBuildCurrentScene()
+        {
+            VerifyRules();
+            VerifyFoamGeometry();
+            BuildCurrentScene();
+        }
+
+        public static void VerifyFoamGeometry()
+        {
+            var go=new GameObject("FoamGeometryVerification");
+            go.transform.position=new Vector3(0,.92f,.12f);
+            try
+            {
+                var foam=go.AddComponent<ViscousFoam>();
+                foam.SendMessage("Awake");
+                foam.ResetFoam();
+                var session=Mixture(Reagent.Soap,Reagent.Peroxide,Reagent.Catalyst);
+                float peak=0,earlyCentre=0,earlyHeight=0;
+                Vector3[] initialDepositPositions=null;
+                bool[] initialDeposits=null;
+                float initialMotion=0;
+                for(int i=0;i<600;i++)
+                {
+                    session.Tick(Time.fixedDeltaTime);
+                    foam.SetProduction(session.FoamAmount,false,session.IsProducingGas);
+                    foam.SendMessage("FixedUpdate");
+                    peak=Mathf.Max(peak,foam.HighestPoint);
+                    if(i>=59 && i<149 && i%10==9) Debug.Log("FOAM_CREST time="+(i+1)*Time.fixedDeltaTime+" height="+foam.HighestPoint+" depositedTop="+foam.PileHeight);
+                    if(i==79 || i==99 || i==129 || i==199 || i==399)
+                    {
+                        foam.RefreshSurface();
+                        Debug.Log("FOAM_STAGE time="+(i+1)*Time.fixedDeltaTime+" emitted="+foam.EmittedVolume+" rendered="+foam.MeshVolume+" error="+foam.VolumeError+" disconnected="+foam.DisconnectedFraction);
+                        Require(foam.VolumeError<.15f,"Transient rendered volume stays close to material volume");
+                        if(i<199) Require(foam.DisconnectedFraction<.01f,"Main strand remains connected");
+                    }
+                    if(i==399) { earlyCentre=foam.DepositedCentreHeight; earlyHeight=foam.PileHeight; }
+                    if(i==129)
+                    {
+                        initialDepositPositions=new Vector3[foam.PointCount];initialDeposits=new bool[foam.PointCount];
+                        for(int j=0;j<foam.PointCount;j++) {initialDepositPositions[j]=foam.PointPosition(j);initialDeposits[j]=foam.IsDeposited(j);}
+                    }
+                    if(i==179)
+                        for(int j=0;j<initialDepositPositions.Length;j++)
+                            if(initialDeposits[j] && foam.IsDeposited(j)) initialMotion=Mathf.Max(initialMotion,Vector3.Distance(initialDepositPositions[j],foam.PointPosition(j)));
+                }
+                foam.RefreshSurface();
+                Debug.Log("FOAM_GEOMETRY: peak="+peak+" pile="+foam.PileHeight+" volume="+foam.MeshVolume+" error="+foam.VolumeError+" near="+foam.NearThickness+" outer="+foam.OuterThickness+" outside="+foam.OutsideTrayVolume/foam.EmittedVolume+" centreDrop="+(earlyCentre-foam.DepositedCentreHeight)+" heightDrop="+(earlyHeight-foam.PileHeight)+" maxStep="+foam.MaximumStep);
+                Debug.Log("FOAM_INITIAL_DEFORMATION displacement="+initialMotion);
+                Require(initialMotion>.003f && foam.MaximumStep<.02f,"Initial gravity-driven deformation without jitter");
+                Require(foam.PileHeight>.25f && foam.PileHeight<.8f,"Compact three-dimensional mound");
+                Require(foam.VolumeError<.06f && foam.DepositedFraction>.98f,"Rendered and deposited volume");
+                Require(foam.NearThickness>foam.OuterThickness*1.2f,"Thicker close to the flask");
+                Require(foam.OutsideTrayVolume/foam.EmittedVolume<.15f,"Most foam stays near flask");
+                Debug.Log("FOAM_RETURN burstDescent="+foam.LongestBurstDescent+" crestDropDuration="+foam.CrestDropDuration);
+                Require(foam.LongestBurstDescent<.3f && foam.CrestDropDuration>0 && foam.CrestDropDuration<.65f,"Whole crest falls promptly after the initial pulse");
+                for(int i=0;i<700;i++) foam.SendMessage("FixedUpdate");
+                var stopped=new Vector3[foam.PointCount];
+                for(int i=0;i<stopped.Length;i++) stopped[i]=foam.PointPosition(i);
+                float expanded=foam.ExpandedVolume;
+                for(int i=0;i<150;i++) foam.SendMessage("FixedUpdate");
+                float drift=0;
+                for(int i=0;i<stopped.Length;i++) drift=Mathf.Max(drift,Vector3.Distance(stopped[i],foam.PointPosition(i)));
+                Debug.Log("FOAM_SETTLED drift="+drift+" expansionRatio="+foam.ExpansionVolume/foam.EmittedVolume+" burstDescent="+foam.LongestBurstDescent+" crestDropDuration="+foam.CrestDropDuration);
+                Require(drift<.000001f && Mathf.Abs(expanded-foam.ExpandedVolume)<.000001f,"Deposits stop moving and expanding");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(go); }
+        }
+
         [MenuItem("MRLab/Build Current PC Scene")]
         public static void BuildCurrentScene()
         {
             if (!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene(ScenePath,true)};
             PlayerSettings.defaultScreenWidth=1600; PlayerSettings.defaultScreenHeight=900; PlayerSettings.fullScreenMode=FullScreenMode.Windowed; PlayerSettings.resizableWindow=true;
-            Directory.CreateDirectory("Builds/PC/FreeMix");
+            Directory.CreateDirectory("Builds/PC");
             // Meta 201's post-build callback uses non-overwriting CopyTo. Preserve its
             // previous generated binding file outside the output before rebuilding.
-            const string bindings = "Builds/PC/FreeMix/RuntimeActionBindings.json";
+            const string bindings = "Builds/PC/RuntimeActionBindings.json";
             if (File.Exists(bindings))
             {
                 Directory.CreateDirectory("Logs");
-                File.Move(bindings, "Logs/FreeMixBindings_" + DateTime.UtcNow.Ticks + ".json");
+                File.Move(bindings, "Logs/PCBindings_" + DateTime.UtcNow.Ticks + ".json");
             }
-            var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes=new[]{ScenePath},locationPathName="Builds/PC/FreeMix/MRLab_E06_24371102.exe",target=BuildTarget.StandaloneWindows64,options=BuildOptions.None });
+            var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions { scenes=new[]{ScenePath},locationPathName="Builds/PC/MRLab_E06_24371102.exe",target=BuildTarget.StandaloneWindows64,options=BuildOptions.None });
             if(report.summary.result!=BuildResult.Succeeded || report.summary.totalErrors!=0) throw new Exception("PC demo build failed: "+report.summary.result+", errors="+report.summary.totalErrors);
             Debug.Log("PC_DEMO_BUILD_PASSED: "+report.summary.totalErrors+" errors, "+report.summary.totalWarnings+" warnings");
             foreach(var step in report.steps) foreach(var entry in step.messages)
@@ -280,6 +349,13 @@ namespace MRLab.Editor
         [MenuItem("MRLab/Verify Experiment Rules")]
         public static void VerifyRules()
         {
+            var induction = Mixture(Reagent.Soap, Reagent.Peroxide, Reagent.Catalyst);
+            induction.Tick(.99f);
+            Require(induction.GasAmount == 0 && induction.FoamAmount == 0, "One second induction");
+            induction.Tick(.02f);
+            Require(induction.GasAmount > 0 && induction.IsProducingGas, "Burst starts after induction");
+            induction.Tick(3);
+            Require(induction.FoamAmount > .9f, "Most foam produced within three seconds of burst");
             // All 24 four-reagent orders, including reaction progress between pours.
             int permutations = 0;
             foreach (Reagent a in Enum.GetValues(typeof(Reagent)))

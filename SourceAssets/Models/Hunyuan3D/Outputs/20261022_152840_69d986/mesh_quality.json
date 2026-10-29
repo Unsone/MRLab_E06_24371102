@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "sampling_boundary_fraction": 0.05561077976584935,
+  "spans_sampling_box": false,
+  "resolution": 128,
+  "reason": "No sampling-box collapse detected; visual inspection still required."
+}

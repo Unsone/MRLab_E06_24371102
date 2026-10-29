@@ -19,6 +19,8 @@ namespace MRLab
         private Vector3[] initialPositions;
         private Quaternion[] initialRotations;
         private MaterialPropertyBlock liquidProperties;
+        private Vector3 pickupPosition;
+        private Quaternion pickupRotation;
 
         private void Awake()
         {
@@ -36,12 +38,13 @@ namespace MRLab
             ResetExperiment();
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            Session.Tick(Time.deltaTime);
+            // Keep chemical production on the same clock as the material simulation.
+            Session.Tick(Time.fixedDeltaTime);
             FoamEffect.SetProduction(Session.FoamAmount, Session.Has(Reagent.Color),
-                Session.Stage == ExperimentStage.Reacting && Session.Has(Reagent.Soap));
-            bool gasVisible = Session.Stage == ExperimentStage.Reacting && !Session.Has(Reagent.Soap);
+                Session.IsProducingGas && Session.Has(Reagent.Soap));
+            bool gasVisible = Session.IsProducingGas && !Session.Has(Reagent.Soap);
             if (gasVisible)
             {
                 var emission = bubbles.emission;
@@ -55,8 +58,10 @@ namespace MRLab
         {
             if (!item) return;
             if (item.isVessel) { AddSelected(); return; }
-            if (Session.IsAdding) { Session.SetMessage("请等当前试剂瓶放回后再选择。"); return; }
-            if (Selected) Selected.SetSelected(false);
+            if (Session.IsAdding) { Session.SetMessage("正在倾倒，请稍候。"); return; }
+            if (Selected && Selected != item) { Session.SetMessage("请先放下手中的烧杯，再拿另一只。"); return; }
+            if (Selected == item) return;
+            pickupPosition = item.transform.position; pickupRotation = item.transform.rotation;
             Selected = item;
             Selected.SetSelected(true);
             Session.SetMessage("已选中" + item.DisplayName + "，点击中央反应容器添加。");
@@ -64,14 +69,24 @@ namespace MRLab
 
         public void CancelSelection()
         {
-            if (Selected) Selected.SetSelected(false);
+            if (Session.IsAdding) return;
+            if (Selected) { Selected.transform.SetPositionAndRotation(pickupPosition, pickupRotation); Selected.SetSelected(false); }
             Selected = null;
-            Session.SetMessage("已取消选择。点击试剂瓶重新选择。");
+            Session.SetMessage("已取消选择。点击烧杯重新拿起。");
+        }
+
+        public bool PlaceSelected(Vector3 position)
+        {
+            if (!Selected || Session.IsAdding) return false;
+            Selected.transform.SetPositionAndRotation(position, pickupRotation);
+            Selected.SetSelected(false); Selected = null;
+            Session.SetMessage("烧杯已放下，可以拿起其他试剂。");
+            return true;
         }
 
         public void AddSelected()
         {
-            if (!Selected) { Session.SetMessage("请先点击一个试剂瓶，或按数字键 1—4 选择。"); return; }
+            if (!Selected) { Session.SetMessage("请先点击一个试剂烧杯，或按数字键 1—4 选择。"); return; }
             if (Session.TryAdd(Selected.reagent)) StartCoroutine(Pour(Selected));
         }
 
@@ -88,13 +103,14 @@ namespace MRLab
             stream.SetPosition(0, item.pourSpout.position);
             stream.SetPosition(1, pourTarget.position - Vector3.up * .12f);
             Session.CommitAddition();
+            var contents = item.transform.Find("ReagentLiquid");
+            if (contents) contents.gameObject.SetActive(false);
             UpdateLiquid();
             yield return new WaitForSeconds(.7f);
             stream.enabled = false;
             yield return MoveItem(item.transform, destination, sourcePosition, rotation, sourceRotation, .45f);
-            item.SetSelected(false);
-            Selected = null;
             Session.FinishAddition();
+            Session.SetMessage("已倒入试剂，空烧杯仍在手中；点击空闲台面放下。");
             UpdateLiquid();
         }
 
@@ -128,6 +144,8 @@ namespace MRLab
             {
                 reagents[i].transform.SetPositionAndRotation(initialPositions[i], initialRotations[i]);
                 reagents[i].SetSelected(false);
+                var contents = reagents[i].transform.Find("ReagentLiquid");
+                if (contents) contents.gameObject.SetActive(true);
             }
             bubbles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             foam.gameObject.SetActive(true);

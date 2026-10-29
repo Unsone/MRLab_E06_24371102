@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MRLab · Hunyuan3D 本地建模</title>
+<style>
+*{box-sizing:border-box}body{font:15px/1.7 system-ui,"Microsoft YaHei",sans-serif;margin:0;background:#edf1f5;color:#233248}main{max-width:1120px;margin:36px auto;padding:0 24px}h1{font-size:28px;margin:0}small,.muted{color:#64748b}.layout{display:grid;grid-template-columns:360px 1fr;gap:22px;margin-top:24px}.card{background:white;border-radius:16px;padding:24px;box-shadow:0 5px 25px #20304008}label{display:block;margin:12px 0 5px}select,input,button{font:inherit;border:1px solid #cbd5e1;border-radius:8px;padding:8px;max-width:100%}select,input[type=number]{width:100%}button{cursor:pointer;background:#1766ce;color:white;border:0;padding:10px 18px;margin-top:18px}button:disabled{opacity:.45;cursor:default}.secondary{background:#e7edf5;color:#233248}.row{display:flex;gap:12px}.row>div{flex:1}#preview{max-height:220px;width:100%;object-fit:contain;margin-top:14px;background:#f6f8fb}#status{font-size:19px;margin:8px 0}pre{white-space:pre-wrap;overflow:auto;font:12px/1.55 Consolas,monospace;background:#152034;color:#d8e5f7;border-radius:10px;padding:16px;height:280px}a{color:#1766ce;margin-right:16px}progress{width:100%;height:16px}#folder{overflow-wrap:anywhere}#error{color:#b3261e;white-space:pre-wrap}p{margin:10px 0}#mesh{width:100%;height:320px;background:#f5f8fc;border-radius:10px;touch-action:none}@media(max-width:760px){.layout{grid-template-columns:1fr}}
+</style><main>
+<h1>MRLab · 本地 AI 建模</h1><div class="muted">Hunyuan3D-2.1 · AMD DirectML / CPU · 单图生成三维几何</div>
+<button id="stop" class="secondary">关闭本地工具（停止任务）</button>
+<div class="layout"><section class="card">
+<label for="image">1. 选择参考图片（PNG / JPG / WebP）</label><input type="file" id="image" accept="image/png,image/jpeg,image/webp"><img id="preview" hidden alt="参考图预览">
+<button id="example" class="secondary">使用官方测试图</button><small> 仅验证推理，不计入器材作业</small>
+<p class="muted">上传后先自动提取物体前景；已有透明背景的图片会保留原遮罩。请核对下方实际送入模型的图片。当前只生成形状，不含自动贴图。</p>
+<div id="preparedNote" hidden><small>实际模型输入（白底显示透明区域）</small><img id="prepared" alt="处理后的前景" style="width:100%;max-height:220px;object-fit:contain;background:white"></div>
+<label for="backend">运行设备</label><select id="backend"><option value="directml">AMD 显卡 · DirectML（实验适配）</option><option value="cpu">CPU（兼容回退，耗时更长）</option></select>
+<div class="row"><div><label for="steps">采样步数</label><input type="number" id="steps" min="2" max="60" value="20"></div><div><label for="resolution">网格分辨率</label><select id="resolution"><option>64</option><option>96</option><option selected>128</option><option>192</option><option>256</option></select></div></div>
+<label for="seed">随机种子</label><input type="number" id="seed" value="1234">
+<button id="generate">2. 开始生成</button> <button id="cancel" class="secondary" disabled>取消</button>
+<p class="muted">首次建议关闭 Unity / Blender。每次输出独立保存，不会覆盖已有模型，也不会自动替换实验场景。</p><div id="error" role="alert"></div>
+</section><section class="card"><small>运行状态</small><div id="status">连接本地程序…</div><progress id="progress" max="100" value="0"></progress><p id="folder" class="muted"></p><div id="downloads"></div><canvas id="mesh" hidden></canvas><small id="meshHint" hidden>原始网格线框预览 · 拖动旋转 · 滚轮缩放</small><pre id="log">尚未开始生成。</pre><p class="muted">原图、参数、日志与 OBJ / GLB 均保存在项目的 SourceAssets/Models/Hunyuan3D/Outputs 下。生成成功后可将 OBJ 导入 Blender 修补，再导入 Unity。</p></section></div></main>
+<script>
+const token='__TOKEN__', $=id=>document.getElementById(id);
+let imageData=null, meshId=null, preparedId=null;
+$('example').onclick=async()=>{try{const r=await fetch('/example.png');if(!r.ok)throw Error('测试图读取失败');const reader=new FileReader();reader.onload=()=>{imageData=reader.result.split(',')[1];$('preview').src=reader.result;$('preview').hidden=false;$('error').textContent='官方测试图仅用于连通性验证。'};reader.readAsDataURL(await r.blob())}catch(e){$('error').textContent=e.message}};
+$('image').onchange=()=>{const file=$('image').files[0];if(!file)return;if(file.size>15*1024*1024){$('error').textContent='参考图不能超过 15 MiB。';return}const reader=new FileReader();reader.onload=()=>{imageData=reader.result.split(',')[1];$('preview').src=reader.result;$('preview').hidden=false;$('error').textContent=''};reader.readAsDataURL(file)};
+async function post(path,body){const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','X-Local-Token':token},body:JSON.stringify(body)});const result=await r.json();if(!r.ok)throw Error(result.error);return result}
+$('stop').onclick=async()=>{try{await post('/api/shutdown',{});clearInterval(polling);$('status').textContent='本地工具已关闭';$('generate').disabled=true;$('cancel').disabled=true;$('stop').disabled=true}catch(e){$('error').textContent=e.message}};
+$('generate').onclick=async()=>{if(!imageData){$('error').textContent='请先选择参考图片。';return}$('generate').disabled=true;$('error').textContent='';try{await post('/api/generate',{image:imageData,backend:$('backend').value,steps:Number($('steps').value),resolution:Number($('resolution').value),seed:Number($('seed').value)});await update()}catch(e){$('error').textContent=e.message;$('generate').disabled=false}};
+$('cancel').onclick=async()=>{try{await post('/api/cancel',{});await update()}catch(e){$('error').textContent=e.message}};
+const stages={prepare_reference:'提取参考图前景',device:'检查设备',load_checkpoint:'读取预训练权重',encode_image:'提取参考图特征',load_dit:'加载形状生成网络',sampling:'生成三维形状',decode_mesh:'解码三维网格（此阶段可能较久）',export:'导出模型',completed:'推理完成，请检查模型'};
+async function update(){
+  try{
+    const r=await fetch('/api/status'),s=await r.json();
+    $('status').textContent=s.status==='idle'?(s.weights_ready?'已就绪，请选择参考图':'权重尚未就绪，请先完成安装'):s.status==='failed'?'重建失败 / 已取消':stages[s.stage]||'准备生成…';
+    if(s.stage==='sampling' && s.status!=='failed')$('status').textContent+=` ${s.detail.step+1} / ${s.detail.total}`;
+    $('progress').value=s.status==='completed'?100:s.stage==='sampling'?10+70*s.detail.step/s.detail.total:s.stage==='decode_mesh'?85:0;
+    $('generate').disabled=!!s.running||!s.weights_ready;$('cancel').disabled=!s.running;
+    $('folder').textContent=s.folder||'';$('log').textContent=s.log||'尚未开始生成。';$('log').scrollTop=$('log').scrollHeight;
+    $('preparedNote').hidden=!s.preprocessing;
+    if(s.preprocessing && preparedId!==s.id){preparedId=s.id;$('prepared').src='/download/prepared_preview.png?run='+encodeURIComponent(s.id)}
+    if(s.status==='failed')$('error').textContent=s.quality&&!s.quality.passed?'模型退化成采样边界方块，重建失败。原始输出与诊断记录已保留。':s.error||'请查看日志。';
+    $('downloads').replaceChildren();
+    if(s.status==='completed'){
+      for(const name of s.files||[]){const link=document.createElement('a');link.href='/download/'+name;link.download=name;link.textContent='下载 '+name;$('downloads').appendChild(link)}
+      if(meshId!==s.id){meshId=s.id;loadMesh()}
+    }else{$('mesh').hidden=true;$('meshHint').hidden=true;meshId=null}
+  }catch(e){$('status').textContent='本地程序未连接，请检查启动窗口。'}
+}
+// Offline, dependency-free wireframe viewer of the actual exported OBJ.
+let vertices=[],faces=[],yaw=.6,pitch=.15,zoom=1,drag=null;
+async function loadMesh(){const text=await(await fetch('/download/model.obj')).text();vertices=[];faces=[];for(const line of text.split('\n')){if(line.startsWith('v '))vertices.push(line.trim().split(/\s+/).slice(1,4).map(Number));if(line.startsWith('f '))faces.push(line.trim().split(/\s+/).slice(1,4).map(x=>Number(x.split('/')[0])-1))}$('mesh').hidden=false;$('meshHint').hidden=false;draw()}
+function draw(){const c=$('mesh'),w=c.clientWidth,h=320;c.width=w*devicePixelRatio;c.height=h*devicePixelRatio;const ctx=c.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);ctx.clearRect(0,0,w,h);ctx.strokeStyle='#3676a988';ctx.lineWidth=.5;const points=vertices.map(([x,y,z])=>{let a=x*Math.cos(yaw)+z*Math.sin(yaw),b=-x*Math.sin(yaw)+z*Math.cos(yaw);return[w/2+a*110*zoom,h/2-(y*Math.cos(pitch)-b*Math.sin(pitch))*110*zoom]});const stride=Math.max(1,Math.ceil(faces.length/18000));ctx.beginPath();for(let i=0;i<faces.length;i+=stride){const f=faces[i];if(!f.every(j=>points[j]))continue;ctx.moveTo(...points[f[0]]);ctx.lineTo(...points[f[1]]);ctx.lineTo(...points[f[2]]);ctx.lineTo(...points[f[0]])}ctx.stroke()}
+$('mesh').onpointerdown=e=>{drag=[e.clientX,e.clientY];$('mesh').setPointerCapture(e.pointerId)};$('mesh').onpointermove=e=>{if(!drag)return;yaw+=(e.clientX-drag[0])*.01;pitch+=(e.clientY-drag[1])*.01;drag=[e.clientX,e.clientY];draw()};$('mesh').onpointerup=()=>drag=null;$('mesh').onwheel=e=>{e.preventDefault();zoom=Math.max(.2,Math.min(5,zoom*Math.exp(-e.deltaY*.001)));draw()};window.onresize=()=>{if(vertices.length)draw()};update();const polling=setInterval(update,2000);
+</script></html>

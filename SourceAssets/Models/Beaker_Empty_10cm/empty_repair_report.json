@@ -1,0 +1,78 @@
+{
+  "source_blend": "D:\\UnityHub\\Projects\\MRLab_E06_24371102\\SourceAssets\\Models\\Beaker_Repaired_10cm\\Beaker_Repaired_10cm.blend",
+  "source_sha256": "62973eebfab7d2fad6274527e27edf0fe51baae75ac2ed69885f5741c35719c0",
+  "removed_false_surface_faces": 968,
+  "inner_wall_join_height_m": 0.081,
+  "base_vertices_faces": [
+    5411,
+    8580
+  ],
+  "evaluated_vertices_faces": [
+    27998,
+    28014
+  ],
+  "height_m": 0.10000000697239386,
+  "boundary_edges": 0,
+  "nonmanifold_edges": 0,
+  "cavity_downward_probes": [
+    {
+      "xy_m": [
+        0,
+        0
+      ],
+      "inner_bottom_z_m": 0.004506692290306091,
+      "open_depth_from_top_m": 0.09549330174922943
+    },
+    {
+      "xy_m": [
+        0.015,
+        0
+      ],
+      "inner_bottom_z_m": 0.004565522074699402,
+      "open_depth_from_top_m": 0.09543447196483612
+    },
+    {
+      "xy_m": [
+        -0.015,
+        0
+      ],
+      "inner_bottom_z_m": 0.004591010510921478,
+      "open_depth_from_top_m": 0.09540898352861404
+    },
+    {
+      "xy_m": [
+        0,
+        0.015
+      ],
+      "inner_bottom_z_m": 0.004586324095726013,
+      "open_depth_from_top_m": 0.09541366994380951
+    },
+    {
+      "xy_m": [
+        0,
+        -0.015
+      ],
+      "inner_bottom_z_m": 0.0045843422412872314,
+      "open_depth_from_top_m": 0.09541565179824829
+    },
+    {
+      "xy_m": [
+        0.022,
+        0.01
+      ],
+      "inner_bottom_z_m": 0.004613056778907776,
+      "open_depth_from_top_m": 0.09538693726062775
+    },
+    {
+      "xy_m": [
+        -0.022,
+        -0.01
+      ],
+      "inner_bottom_z_m": 0.004656627774238586,
+      "open_depth_from_top_m": 0.09534336626529694
+    }
+  ],
+  "radial_wall_probe_count": 96,
+  "minimum_sampled_wall_thickness_m": 0.0031181256456673146,
+  "note": "False liquid-surface cap removed; missing lower inner wall extended from existing contour; actual outer base retained. Not a fluid simulation collider."
+}

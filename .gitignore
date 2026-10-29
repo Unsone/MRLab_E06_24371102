@@ -43,3 +43,22 @@ crashlytics-build.properties
 
 # Local Unity licensing diagnostic logs
 /SafeNet Sentinel/
+# Project-local AI runtime/weights are reproducible, not submission source.
+/SourceAssets/Models/Hunyuan3D/.runtime/
+/SourceAssets/Models/Hunyuan3D/**/__pycache__/
+
+# Local submission archives and unrelated presentation workspace
+/*.zip
+/Docs/VR_结课展示/
+*.blend1
+__pycache__/
+*.pyc
+/SourceAssets/Models/Hunyuan3D/pc-build-path.txt
+/SourceAssets/Models/Hunyuan3D/unity-runtime.*
+/SourceAssets/Models/Hunyuan3D/unity-verification.json
+/SourceAssets/Models/Hunyuan3D/Outputs/*
+!/SourceAssets/Models/Hunyuan3D/Outputs/20261022_152840_69d986/
+/SourceAssets/Models/Erlenmeyer/Raw/attempt01/
+**/Inspection/
+**/process_id.txt
+**/console.log

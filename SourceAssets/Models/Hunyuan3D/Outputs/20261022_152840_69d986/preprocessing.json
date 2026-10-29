@@ -1,0 +1,9 @@
+{
+  "source_sha256": "eb01a267f3b0c64a3d60f3c112cd52eaba57d09e6e5ab1c9debcb9079ec55e9c",
+  "method": "rembg_u2netp_cpu",
+  "mask_model_sha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+  "foreground_fraction": 0.423971623569664,
+  "alpha_min": 0,
+  "alpha_max": 255,
+  "prepared_sha256": "ac6211c65fd717e46b26cf9835dfd74a7ab525e94d36ed53ab3b6b19ca1b22dd"
+}

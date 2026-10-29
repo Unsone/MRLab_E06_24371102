@@ -9,7 +9,8 @@ namespace MRLab
     public sealed class ExperimentSession
     {
         public static readonly string[] ReagentNames = { "过氧化氢溶液", "洗洁精", "食用色素", "酵母催化液" };
-        public const float ReactionDuration = 12f; // Demonstration time, not measured kinetics.
+        public const float InductionDuration = 1f;
+        public const float ReactionDuration = 7f; // Includes induction; visual teaching timing, not measured kinetics.
         private readonly bool[] present = new bool[4];
         private Reagent pending;
         private bool committed;
@@ -22,6 +23,7 @@ namespace MRLab
         public float DyedFoamAmount { get; private set; }
         public float GasAmount { get; private set; }
         public float Progress => GasAmount;
+        public bool IsProducingGas => Stage == ExperimentStage.Reacting && ReactionTime > InductionDuration;
         public string Message { get; private set; }
         public event Action Changed;
         public bool Has(Reagent reagent) => present[(int)reagent];
@@ -30,7 +32,7 @@ namespace MRLab
 
         public bool TryAdd(Reagent reagent)
         {
-            if (IsAdding) { SetMessage("当前正在倾倒，请等瓶子放回后再添加。"); return false; }
+            if (IsAdding) { SetMessage("当前正在倾倒，请等待倾倒完成。"); return false; }
             if (Has(reagent)) { SetMessage(ReagentNames[(int)reagent] + "这一份已用完；重置可重新实验。"); return false; }
             pending = reagent;
             committed = false;
@@ -64,7 +66,8 @@ namespace MRLab
         {
             if (Stage != ExperimentStage.Reacting || seconds <= 0 || float.IsNaN(seconds) || float.IsInfinity(seconds)) return;
             ReactionTime = Math.Min(ReactionDuration, ReactionTime + seconds);
-            float remaining = ReactionTime >= ReactionDuration ? 0 : (float)Math.Exp(-.35 * ReactionTime);
+            float activeTime = Math.Max(0, ReactionTime - InductionDuration);
+            float remaining = ReactionTime >= ReactionDuration ? 0 : (float)Math.Exp(-.8 * activeTime);
             float produced = Math.Max(0, RemainingPeroxide - remaining);
             RemainingPeroxide = remaining;
             GasAmount += produced;
@@ -74,13 +77,15 @@ namespace MRLab
                 if (Has(Reagent.Color)) DyedFoamAmount += produced;
             }
             if (ReactionTime >= ReactionDuration) { Stage = ExperimentStage.Completed; DescribeContents(); }
-            else Changed?.Invoke();
+            else DescribeContents();
         }
 
         private void DescribeContents()
         {
             if (Stage == ExperimentStage.Completed)
                 SetMessage(FoamAmount > .03f ? "反应结束：泡沫已落下堆积。剩余试剂仍可添加，但不会重新产气。" : "反应结束：氧气已逸散。现在补洗洁精，也不会重新喷出大量泡沫。");
+            else if (Stage == ExperimentStage.Reacting && ReactionTime <= InductionDuration)
+                SetMessage("反应物已接触，正在积累气体；约 1 秒后开始喷发。");
             else if (Stage == ExperimentStage.Reacting)
                 SetMessage(Has(Reagent.Soap) ? "正在产气：洗洁精稳定气泡，连续泡沫冲出瓶口后落下堆积。" : "正在分解产气：没有洗洁精，气泡容易破裂，难以形成稳定泡沫柱。");
             else if (!Has(Reagent.Peroxide)) SetMessage("可自由添加。容器内还没有过氧化氢，不会发生本实验的产气反应。");

@@ -1,0 +1,76 @@
+{
+  "status": "completed",
+  "started": "2026-10-25T16:01:14.081620",
+  "model": "tencent/Hunyuan3D-2.1/hunyuan3d-dit-v2-1",
+  "model_revision": "0b94677654c57bb9a6b6845cd7b704ccf551d327",
+  "model_sha256": "6b519fc7242f78e9b5f47ea4d55668fe3d944a2d27332f4ca68d29a6ff603f5e",
+  "settings": {
+    "input": "D:\\UnityHub\\Projects\\MRLab_E06_24371102\\SourceAssets\\Models\\Erlenmeyer\\Reference\\original.jpg",
+    "output": "D:\\UnityHub\\Projects\\MRLab_E06_24371102\\SourceAssets\\Models\\Erlenmeyer\\Raw\\attempt02",
+    "decode_from": null,
+    "backend": "directml",
+    "steps": 30,
+    "resolution": 128,
+    "seed": 42,
+    "guidance": 3.0,
+    "attention_chunk": 256,
+    "volume_chunk": 1024
+  },
+  "input_sha256": "494b3110de6d447d2beb75dd025fa8ef8e5fb1a8bacaea7ac2b4d9e5edb6c09b",
+  "prepared_input": "D:\\UnityHub\\Projects\\MRLab_E06_24371102\\SourceAssets\\Models\\Erlenmeyer\\Raw\\attempt02\\prepared.png",
+  "execution": "isolated_sampling_and_decoding_processes",
+  "memory": {
+    "available_ram_mib": 10441,
+    "process_rss_mib": 9892,
+    "process_peak_wset_mib": 16149
+  },
+  "stage": "completed",
+  "detail": {},
+  "elapsed_seconds": 3245.99,
+  "preprocessing": {
+    "source_sha256": "494b3110de6d447d2beb75dd025fa8ef8e5fb1a8bacaea7ac2b4d9e5edb6c09b",
+    "method": "rembg_u2netp_cpu",
+    "mask_model_sha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+    "foreground_fraction": 0.5051210253326317,
+    "alpha_min": 0,
+    "alpha_max": 255,
+    "prepared_sha256": "b1da31368858a4b8da80891c5a155bcc1068b8998ecd6abb67e9e6ec08bddac5"
+  },
+  "metadata": {
+    "device": "AMD Radeon 780M Graphics",
+    "dtype": "torch.float16",
+    "source_commit": "82920d643c0dc2f7bfd7255f45f62d386edfe60c",
+    "dit_offload": "sequential_blocks",
+    "decode_device": "AMD Radeon 780M Graphics"
+  },
+  "latent_sha256": "91be4c0d6548a93d5b90efa232b8177505b1f803d63634f4e0d3c8a67cb13751",
+  "sampling_seconds": 2955.3,
+  "vertices": 2562,
+  "faces": 5120,
+  "bounds": [
+    [
+      -0.17251190543174744,
+      -0.23929710686206818,
+      -0.16997338831424713
+    ],
+    [
+      0.1567966639995575,
+      0.22716130316257477,
+      0.15425390005111694
+    ]
+  ],
+  "quality": {
+    "passed": true,
+    "sampling_boundary_fraction": 0.0,
+    "flat_sampling_sheet": false,
+    "spans_sampling_box": false,
+    "resolution": 128,
+    "reason": "No sampling-box collapse detected; visual inspection still required."
+  },
+  "decoding_seconds": 280.34,
+  "output_sha256": {
+    "model.obj": "ef25a31abe2fbbc82eb2d3c80a6c1141cb2319cd873f79b260776df2bddd1d28",
+    "model.glb": "46cb77d205d0519d9d9ced8f15fc732e9266e3a867129d77b27d3776cb2335d3"
+  },
+  "scope": "pretrained shape only; no texture generation or Blender optimization"
+}

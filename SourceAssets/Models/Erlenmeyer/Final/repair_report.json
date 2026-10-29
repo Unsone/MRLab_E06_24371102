@@ -1,0 +1,49 @@
+{
+  "raw_obj_sha256": "ef25a31abe2fbbc82eb2d3c80a6c1141cb2319cd873f79b260776df2bddd1d28",
+  "removed_partition_faces": 150,
+  "height_m": 0.13,
+  "boundary_edges": 0,
+  "nonmanifold_edges": 0,
+  "downward_cavity_probes": [
+    {
+      "xy": [
+        0,
+        0
+      ],
+      "floor_z_m": 0.0035730749368667603
+    },
+    {
+      "xy": [
+        0.006,
+        0
+      ],
+      "floor_z_m": 0.0036148279905319214
+    },
+    {
+      "xy": [
+        -0.006,
+        0
+      ],
+      "floor_z_m": 0.0036089420318603516
+    },
+    {
+      "xy": [
+        0,
+        0.006
+      ],
+      "floor_z_m": 0.003613188862800598
+    },
+    {
+      "xy": [
+        0,
+        -0.006
+      ],
+      "floor_z_m": 0.003610461950302124
+    }
+  ],
+  "wall_probe_count": 168,
+  "minimum_sampled_wall_m": 0.002141444600828374,
+  "vertices": 77034,
+  "faces": 77032,
+  "repair": "Original exterior retained, false liquid cap removed, inner wall follows generated exterior; lip leveled and surface relaxed. Height chosen as editable 13 cm, not measured from photo."
+}

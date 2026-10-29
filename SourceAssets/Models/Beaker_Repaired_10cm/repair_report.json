@@ -1,0 +1,32 @@
+{
+  "source": "D:\\UnityHub\\Projects\\MRLab_E06_24371102\\SourceAssets\\Models\\Hunyuan3D\\Outputs\\20261022_152840_69d986\\model.obj",
+  "source_sha256": "5a19d47e82bffbc20c9f30f459b2c85c6f8f061e64083c06d0c4457b8c7ffc5d",
+  "raw_vertices_faces": [
+    36216,
+    72464
+  ],
+  "trimmed_vertices_faces": [
+    3944,
+    7638
+  ],
+  "evaluated_vertices_faces": [
+    23180,
+    23196
+  ],
+  "dimensions_m": [
+    0.10039158165454865,
+    0.09096735715866089,
+    0.10000000894069672
+  ],
+  "bottom_z_m": 1.3671353826794075e-08,
+  "boundary_edges": 0,
+  "nonmanifold_edges": 0,
+  "cut_source_z": -0.205,
+  "removed_disconnected_components": 0,
+  "glass": {
+    "transmission": 1,
+    "IOR": 1.47,
+    "roughness": 0.08
+  },
+  "notes": "Original Hunyuan cavity depth and irregular rim retained. Glass is a Blender/Cycles material; FBX materials need a Unity URP transparent shader."
+}

@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "sampling_boundary_fraction": 0.0,
+  "flat_sampling_sheet": false,
+  "spans_sampling_box": false,
+  "resolution": 128,
+  "reason": "No sampling-box collapse detected; visual inspection still required."
+}

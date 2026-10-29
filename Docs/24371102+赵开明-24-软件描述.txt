@@ -1,0 +1,17 @@
+﻿小作业2 三维建模软件描述
+姓名：赵开明；学号：24371102。
+软件：Blender 4.2；通过 bpy/bmesh 脚本编辑实际 Hunyuan 原始网格。
+
+烧杯：切除多余背景底板、平滑外壁；删除误生成的水面隔板，延伸内壁到真实底部，重算法线，保持开口空腔。
+修复高度约 0.10 m；内壁接合切面 0.081 m；删除假液面相关面 968 个；实际中心内深约 0.09549 m。
+脚本：SourceAssets/Models/Hunyuan3D/repair_beaker.py 和 repair_empty_beaker.py。
+
+锥形瓶：删除瓶颈下方假液面 150 个面；按照保留外壁轮廓生成下部内壁，保留真实底部；修平瓶口。
+修复高度 0.13 m；内壁接合高度 0.112 m；目标内壁相对外壁径向内缩 0.0025 m。
+外壁 Smooth factor=0.45、12 次；瓶口水平 Smooth factor=0.5、15 次；Subdivision Surface level=2。
+脚本：SourceAssets/Models/Erlenmeyer/repair_flask.py。
+
+玻璃材质：Principled BSDF transmission=1，IOR=1.47，roughness=0.08；Unity 使用 URP 透明材质。
+结果：两个模型边界边和非流形边均为 0。烧杯 7 条内腔向下探测、96 条径向壁厚探测；锥形瓶 5 条内腔向下探测、168 条壁厚探测。检查只证明采样处，不等同于完整自交或真实容量校准。
+最终 FBX 位于 -25-软件结果.zip，Blender 可编辑原件在 SourceAssets；烧杯与锥形瓶原始 OBJ 位于 -23-算法结果.zip。
+Unity 展示尺寸分别适配为烧杯高 0.16 m、锥形瓶高 0.28 m；不宣称参考图的 250mL 容量已经校准。
