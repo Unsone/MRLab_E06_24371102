@@ -62,3 +62,7 @@ __pycache__/
 **/Inspection/
 **/process_id.txt
 **/console.log
+
+# Offline render intermediates and packaged coursework
+/RenderStudies/*/evidence/*_cascade*.exr
+/第3次小作业提交/*.zip

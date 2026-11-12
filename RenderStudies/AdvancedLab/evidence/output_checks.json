@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "views": [
+    {
+      "view": 1,
+      "images": [
+        {
+          "file": "view01_hybrid.png",
+          "size": [
+            1800,
+            1200
+          ],
+          "bytes": 2352066
+        },
+        {
+          "file": "view01_white.png",
+          "size": [
+            1800,
+            1200
+          ],
+          "bytes": 1154624
+        }
+      ],
+      "editable_scene": "view01_hybrid.blend"
+    },
+    {
+      "view": 2,
+      "images": [
+        {
+          "file": "view02_hybrid.png",
+          "size": [
+            1800,
+            1200
+          ],
+          "bytes": 2179865
+        },
+        {
+          "file": "view02_white.png",
+          "size": [
+            1800,
+            1200
+          ],
+          "bytes": 1092818
+        }
+      ],
+      "editable_scene": "view02_hybrid.blend"
+    }
+  ],
+  "matching_camera_per_pair": "Both render paths use the same camera object without changing its transform/lens or scene geometry."
+}

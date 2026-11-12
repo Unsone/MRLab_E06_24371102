@@ -1,0 +1,14 @@
+{
+  "tested_points": 1374,
+  "matches": 1359,
+  "agreement": 0.9890829694323144,
+  "ray_lit": 762,
+  "ray_shadowed": 612,
+  "cascade_counts": [
+    0,
+    0,
+    799,
+    575
+  ],
+  "method": "Independent BVH sun-ray intersection vs raster map depth comparisons; floor/worktop, exclude PCF edges/split blends; small bias-induced differences expected."
+}

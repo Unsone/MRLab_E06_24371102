@@ -1,0 +1,6 @@
+*.blend1
+evidence/*stdout.log
+evidence/*stderr.log
+evidence/previews/
+evidence/*preview*.json
+images/*preview*.png
